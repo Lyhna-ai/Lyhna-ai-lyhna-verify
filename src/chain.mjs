@@ -156,15 +156,12 @@ export function verifyChain(payloads, opts = {}) {
   result.action_count_ok = declared === inLoopLinks;
   if (!result.action_count_ok) fail(`action_count_${declared}_NE_links_${inLoopLinks}`);
 
-  result.status =
-    result.all_receipts_verified &&
-    result.continuity_ok &&
-    result.sealed &&
-    result.loop_id_consistent &&
-    result.goal_hash_consistent &&
-    result.action_count_ok
-      ? 'VERIFIED'
-      : 'FAILED';
+  // Verdict is FAILED if ANY invariant recorded a reason. Basing this on the
+  // accumulated reasons (rather than re-listing booleans) ensures that hard
+  // failures which are not mirrored in a boolean flag — e.g. HEAD_IS_A_CLOSE
+  // for a lone, validly-signed loop_close with prior_receipt_id: null — are not
+  // silently overwritten with OK.
+  result.status = result.reasons.length === 0 ? 'VERIFIED' : 'FAILED';
   if (result.status === 'VERIFIED') result.reasons = ['OK'];
   return result;
 }

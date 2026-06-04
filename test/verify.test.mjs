@@ -2,15 +2,19 @@
 // Run: node --test
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { execFileSync } from 'node:child_process';
 
 import { canon } from '../src/canon.mjs';
 import { verifyReceipt, detectShape } from '../src/receipt.mjs';
 import { verifyChain } from '../src/chain.mjs';
 import { deriveTenantHash, checkTenantPair, checkScopeHygiene } from '../src/tenant.mjs';
 import { loadRecords, groupChains } from '../src/input.mjs';
-import { rawPublicKeyHex, normalizeSignature } from '../src/ed25519.mjs';
+import { rawPublicKeyHex, normalizeSignature, sha256Hex } from '../src/ed25519.mjs';
 import { LYHNA_PUBLIC_KEY_HEX, BY_DESIGN_FAILURES } from '../src/constants.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -92,6 +96,31 @@ test('chains: action_count is verified against real link count, not hardcoded to
   assert.equal(res.declared_action_count, res.in_loop_links);
 });
 
+test('chains: a lone validly-signed loop_close (head-is-close) is REJECTED', () => {
+  // Mint a loop_close whose prior_receipt_id is null, signed with a freshly
+  // generated key, so the receipt itself verifies — isolating the structural
+  // invariant from the signature check. A chain that IS just a close must fail.
+  const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');
+  const rawPub = Buffer.from(publicKey.export({ type: 'spki', format: 'der' })).subarray(-32).toString('hex');
+  const core = {
+    receipt_id: 'lrv2_test_closeonly_0001',
+    action_type: 'loop_close',
+    tenant_id: 'tenant_test',
+    outcome: 'APPROVED',
+    constraints: {
+      loop: { loop_id: 'L-test', prior_receipt_id: null, goal_hash: 'gh' },
+      loop_close: { loop_id: 'L-test', goal_hash: 'gh', action_count: 0 },
+    },
+  };
+  const ch = sha256Hex(canon(core));
+  const sig = crypto.sign(null, Buffer.from(ch, 'utf8'), privateKey).toString('base64');
+  const receipt = { ...core, canonical_hash: ch, public_key: rawPub, signature: sig };
+  const res = verifyChain([receipt], { trustedKeyHex: rawPub });
+  assert.equal(res.all_receipts_verified, true, 'the lone receipt is itself validly signed');
+  assert.equal(res.status, 'FAILED', 'a head-that-is-a-close must not verify');
+  assert.ok(res.reasons.includes('HEAD_IS_A_CLOSE'), `reasons: ${res.reasons.join(',')}`);
+});
+
 test('chains: an unsealed chain (close removed) is REJECTED', () => {
   const { chains } = groupChains(records);
   const c = [...chains.values()].find((c) => c.payloads.length > 1);
@@ -131,6 +160,35 @@ test('tenant: scope hygiene — internal has tenant_id only, external tenant_has
 // ---------------------------------------------------------------------------
 // UNIT: canon, shape detection, encoding normalization, tamper, trust pin.
 // ---------------------------------------------------------------------------
+test('corpus CLI: a failing external standalone receipt forces a non-zero exit', () => {
+  // corpus = the real export + one tampered external standalone receipt whose
+  // id is NOT a documented by-design failure. The CLI must NOT report all-clear.
+  const base = readFileSync(CORPUS, 'utf8').trimEnd();
+  const recs = loadRecords(CORPUS);
+  const extGood = recs.find((r) => r.scope === 'external' && verifyReceipt(r.payload, PIN).status === 'VERIFIED');
+  const bad = JSON.parse(JSON.stringify(extGood.payload));
+  bad.receipt_id = 'lrv2_test_badexternal_0001';
+  bad.outcome = bad.outcome === 'APPROVED' ? 'REFUSED' : 'APPROVED'; // breaks canonical_hash match
+  const line = JSON.stringify({ receipt_id: bad.receipt_id, scope: 'external', payload: bad });
+  const dir = mkdtempSync(join(tmpdir(), 'lyhna-'));
+  const f = join(dir, 'corpus.ndjson');
+  writeFileSync(f, base + '\n' + line + '\n');
+
+  const bin = join(__dirname, '..', 'bin', 'lyhna-verify.mjs');
+  let code = 0;
+  let out = '';
+  try {
+    out = execFileSync(process.execPath, [bin, '--corpus', f, '--json'], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  } catch (e) {
+    code = e.status;
+    out = e.stdout || '';
+  }
+  assert.equal(code, 1, 'CLI must exit non-zero on an unexpected external failure');
+  const j = JSON.parse(out);
+  assert.equal(j.expectation.expectationMet, false);
+  assert.ok(j.expectation.unexpectedFailures.some((u) => u.receipt_id === 'lrv2_test_badexternal_0001'));
+});
+
 test('canon: recursive sorted-key, no whitespace, stable', () => {
   assert.equal(canon({ b: 1, a: [3, 2, { z: null, a: 'x' }] }), '{"a":[3,2,{"a":"x","z":null}],"b":1}');
   assert.equal(canon(null), 'null');

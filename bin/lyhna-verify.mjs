@@ -179,11 +179,13 @@ function runCorpus(records, vopts, opts) {
   }
 
   // Expectation check: the documented by-design failures must be exactly the
-  // internal failures, and everything else must verify.
+  // failures, and everything else must verify. Unexpected failures are counted
+  // across ALL scopes (a failing external standalone receipt must not slip
+  // through), while the "expected" set must still fail in the internal sweep.
   const expectedFailIds = new Set(Object.keys(BY_DESIGN_FAILURES));
-  const failedIds = new Set(internalFailed.map((r) => r.receipt_id));
-  const unexpectedFailures = internalFailed.filter((r) => !expectedFailIds.has(r.receipt_id));
-  const missingExpected = [...expectedFailIds].filter((id) => !failedIds.has(id));
+  const internalFailedIds = new Set(internalFailed.map((r) => r.receipt_id));
+  const unexpectedFailures = failed.filter((r) => !expectedFailIds.has(r.receipt_id));
+  const missingExpected = [...expectedFailIds].filter((id) => !internalFailedIds.has(id));
   const tenantOK = tenantChecks.every((t) => t.ok);
   const chainsOK = chainReport.every((c) => c.status === 'VERIFIED');
   const expectationMet =
@@ -194,7 +196,7 @@ function runCorpus(records, vopts, opts) {
       mode: 'corpus',
       totals: { records: results.length, internal: internal.length, internal_verified: internalVerified.length, internal_failed: internalFailed.length },
       results, tenantChecks, chains: chainReport,
-      expectation: { unexpectedFailures: unexpectedFailures.map((r) => r.receipt_id), missingExpected, tenantOK, chainsOK, expectationMet },
+      expectation: { unexpectedFailures: unexpectedFailures.map((r) => ({ receipt_id: r.receipt_id, scope: r.scope, reason: r.reason })), missingExpected, tenantOK, chainsOK, expectationMet },
     }, null, 2));
     process.exit(expectationMet ? 0 : 1);
   }
@@ -229,7 +231,7 @@ function runCorpus(records, vopts, opts) {
   console.log(`  internal: ${internalVerified.length} VERIFIED / ${internalFailed.length} FAILED (of ${internal.length})`);
   console.log(`  all records: ${verified.length} VERIFIED / ${failed.length} FAILED (of ${results.length})`);
   console.log(`  chains: ${chainReport.filter((c) => c.status === 'VERIFIED').length}/${chainReport.length} verified`);
-  if (unexpectedFailures.length) console.log(`  !!! UNEXPECTED FAILURES: ${unexpectedFailures.map((r) => r.receipt_id).join(', ')}`);
+  if (unexpectedFailures.length) console.log(`  !!! UNEXPECTED FAILURES: ${unexpectedFailures.map((r) => `${r.receipt_id} [${r.scope}] ${r.reason}`).join(', ')}`);
   if (missingExpected.length) console.log(`  !!! EXPECTED-FAIL RECEIPTS THAT VERIFIED (verifier too permissive): ${missingExpected.join(', ')}`);
   console.log(`\n  EXPECTATION ${expectationMet ? 'MET — 195 verify / 3 fail-by-design reproduced, chains cold-verified.' : 'NOT MET.'}`);
 
