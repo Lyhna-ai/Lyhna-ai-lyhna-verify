@@ -1,0 +1,74 @@
+[
+  {
+    "nonce": "4634b6b9-ee4f-44a7-92a4-12d6b5fa720f",
+    "reason": null,
+    "outcome": "APPROVED",
+    "version": "LYHNA_RECEIPT_V2",
+    "signature": "/mpgJzhPT3Of/B9KOXK+GCTklaiZzTmd5tT1Cw9j31J6GeJLqjA1Zj2kvxi/KiYo7Jud/z4LUUtPjCdNscX0DA==",
+    "tenant_id": "tenant_d04579fbbb4a",
+    "timestamp": "2026-06-03T03:14:53.799Z",
+    "expires_at": "2026-06-03T03:19:53.799Z",
+    "public_key": "2ecb73042161b7b0008971499b191ec9e3824cd4a6e058a8cede90b04e1efff2",
+    "receipt_id": "lrv2_1780456493799_44bf5f1b",
+    "action_hash": "7527421e4599e20a08d559cf62a4fb1756c23ca4bfef437c824c1b988e283040",
+    "action_type": "inspect_runtime_config",
+    "constraints": {
+      "loop": {
+        "loop_id": "a4a40b55-c399-4f4f-b46f-105a53655d3a",
+        "goal_hash": "065aa7a244632b1aac7dcfa8254ce0b6b3bae66001d8b884b900afa790c14136",
+        "prior_receipt_id": null
+      }
+    },
+    "environment": "dev",
+    "escalate_to": null,
+    "tier_source": "canonical_default",
+    "action_origin": "runtime_mapped",
+    "authority_tier": "tier_0",
+    "canonical_hash": "2d369208e97ec85a56d7ce1ec5d229e5d55e40c63864adc7aedc7818074800f9",
+    "intent_version": "1.0",
+    "ssp_bucket_key": "85444477fa2537e739c9b01edc47249d6541f9d79e92038be5bf996924e473a3",
+    "effective_policy": "auto_approve",
+    "registry_version": "v1",
+    "constraint_vector_hash": "e61b9f584dbe27741cef6e9ee440831d7d94470c0871b0871541f0308916efea"
+  },
+  {
+    "nonce": "84505f3d-108c-4c80-814b-bb578e7e86a5",
+    "reason": null,
+    "outcome": "APPROVED",
+    "version": "LYHNA_RECEIPT_V2",
+    "signature": "/rAh9mSNRXjEg5rsamQG8fHoOl90pbpDbIxZrVSC35xbx9XcNr31sMnmoQzneZZhZieHNJZ6ufK0MAh6FGBwDg==",
+    "tenant_id": "tenant_d04579fbbb4a",
+    "timestamp": "2026-06-03T03:17:20.800Z",
+    "expires_at": "2026-06-03T03:22:20.800Z",
+    "public_key": "2ecb73042161b7b0008971499b191ec9e3824cd4a6e058a8cede90b04e1efff2",
+    "receipt_id": "lrv2_1780456640800_34f62968",
+    "action_hash": "4b148265c0edb456491d2104eb28ea7ed7693670e49112acb0761cbd899e6582",
+    "action_type": "loop_close",
+    "constraints": {
+      "loop": {
+        "loop_id": "a4a40b55-c399-4f4f-b46f-105a53655d3a",
+        "goal_hash": "065aa7a244632b1aac7dcfa8254ce0b6b3bae66001d8b884b900afa790c14136",
+        "prior_receipt_id": "lrv2_1780456493799_44bf5f1b"
+      },
+      "loop_close": {
+        "loop_id": "a4a40b55-c399-4f4f-b46f-105a53655d3a",
+        "outcome": "COMPLETED",
+        "goal_hash": "065aa7a244632b1aac7dcfa8254ce0b6b3bae66001d8b884b900afa790c14136",
+        "action_count": 1,
+        "prior_receipt_id": "lrv2_1780456493799_44bf5f1b",
+        "termination_reason": "SIGTERM"
+      }
+    },
+    "environment": "dev",
+    "escalate_to": null,
+    "tier_source": "tenant_extension",
+    "action_origin": "direct",
+    "authority_tier": "tier_2",
+    "canonical_hash": "623311d688ac93bdf6e6785227afd46adb8f4ed193362e72404985d02fcf5dc6",
+    "intent_version": "loop_v1",
+    "ssp_bucket_key": "8357fc5637ab0021982eb17deb1bdfd58166f4c43c1f49950e434eadcb0498f5",
+    "effective_policy": "standard_review",
+    "registry_version": "v1",
+    "constraint_vector_hash": "e61b9f584dbe27741cef6e9ee440831d7d94470c0871b0871541f0308916efea"
+  }
+]

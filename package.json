@@ -1,0 +1,33 @@
+{
+  "name": "lyhna-verify",
+  "version": "1.0.0",
+  "description": "Independent, offline verifier for the Lyhna receipt corpus. Trusts no one: re-implements canonicalization + Ed25519 from scratch and depends only on Node's crypto (OpenSSL) + a pinned public key.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "lyhna-verify": "bin/lyhna-verify.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test",
+    "verify:corpus": "node bin/lyhna-verify.mjs --corpus corpus/corpus.ndjson"
+  },
+  "dependencies": {},
+  "keywords": [
+    "lyhna",
+    "ed25519",
+    "offline-verification",
+    "receipts",
+    "attestation"
+  ]
+}

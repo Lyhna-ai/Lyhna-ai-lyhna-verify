@@ -1,0 +1,37 @@
+{
+  "nonce": "791af7f1-6381-463e-93e6-e3b87ff3e4db",
+  "reason": "Authority holder refused",
+  "loop_id": null,
+  "outcome": "REFUSED",
+  "version": "LYHNA_RECEIPT_V2",
+  "signature": "s6OAL3D6jc9mUYAeyGLPm2BVV185jHY1ThtBZTU/9hrEsPazq47MK/YnsuL7xfvnn1uVR0LRcqRdvgewA9FQDw==",
+  "tenant_id": "tenant_d04579fbbb4a",
+  "timestamp": "2026-06-01T01:17:27.983Z",
+  "expires_at": "2026-06-01T01:22:27.983Z",
+  "public_key": "2ecb73042161b7b0008971499b191ec9e3824cd4a6e058a8cede90b04e1efff2",
+  "receipt_id": "lrv2_1780276647983_6f9c7ad3",
+  "action_hash": "94acd682944c2ed47d9527950d7cc01a8f79cf9c5e6b188b618bf21f76e69462",
+  "action_type": "authority_resolution",
+  "constraints": {
+    "resolves_receipt_id": "lrv2_1780276550498_4aaca51f"
+  },
+  "environment": "dev",
+  "escalate_to": null,
+  "resolved_at": "2026-06-01T01:17:27.983Z",
+  "tier_source": "authority_resolution",
+  "continuation": null,
+  "action_origin": "system",
+  "authority_tier": "human_governor",
+  "canonical_hash": "3afd85267da819bffe66669e48cbb12a2d62d875514bb08c37e7b83e042fd298",
+  "intent_version": "authority_resolution",
+  "ssp_bucket_key": "a5b219926a37119a664395bf02603543044452ed7ff6b16241f18542a5475181",
+  "authority_basis": {
+    "ref": "telegram:human_governor",
+    "tier": "human_governor",
+    "type": "tier_policy"
+  },
+  "effective_policy": null,
+  "registry_version": "v1",
+  "resolver_identity": "human_governor",
+  "constraint_vector_hash": "3d5812abc84c11768aa73a732c85d75dbed439188f5bb3239e9b762ea31d9862"
+}
